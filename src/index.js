@@ -1,8 +1,8 @@
 function main(sources) {
   
-  const click$ = sources.DOM
+  const mouseover$ = sources.DOM.selectEvents('span', 'mouseover')
   
-  const DOM = click$
+  const DOM = mouseover$
     .startWith(null)
     .map(() => xs.periodic(1000)
     .fold(prev => prev + 1, 0))
@@ -15,7 +15,7 @@ function main(sources) {
       }]
     }))  
     
-  const log = click$.map(() => `Restarted!`)  
+  const log = mouseover$.map(() => `Restarted!`)  
   
   return {
     DOM,
@@ -45,7 +45,12 @@ function domDriver(obj$) {
     }
   })
   
-  const domSource = fromEvent(document, 'click')
+  const domSource = {
+    selectEvents: (tagName, event) => {
+      return fromEvent(document, event)
+        .filter(ev => ev.target.tagName === tagName.toUpperCase())
+    }
+  }
   return domSource
 }
 
