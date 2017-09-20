@@ -1,16 +1,20 @@
-
 function main(sources) {
   
   const click$ = sources.DOM
   
   const DOM = click$
     .startWith(null)
-    .map(() => xs.periodic(1000).fold(prev => prev + 1, 0))
+    .map(() => xs.periodic(1000)
+    .fold(prev => prev + 1, 0))
     .flatten()
-    .map(i => `Seconds elapsed: ${i}`)  
-  
-  const log = click$
-    .map(() => `Restarted!`)  
+    .map(i => ({
+      tagName: 'H1',
+      children: [
+        `Seconds elapsed: ${i}`
+      ]
+    }))  
+    
+  const log = click$.map(() => `Restarted!`)  
   
   return {
     DOM,
@@ -18,11 +22,17 @@ function main(sources) {
   }
 }
 
-function domDriver(text$) {
-  text$.subscribe({
-    next: str => {
-      const elem = document.querySelector('#app')
-      elem.textContent = str
+function createElement(obj) {
+  const element = document.createElement(obj.tagName)
+  element.textContent = obj.children[0]
+  return element
+}
+
+function domDriver(obj$) {
+  obj$.subscribe({
+    next: obj => {
+      const container = document.querySelector('#app')
+      container.appendChild(createElement(obj))
     }
   })
   
@@ -37,26 +47,7 @@ function logDriver(msg$) {
 }
 
 
-function run(mainFn, drivers) {
-  const sources = {}
-  const fakeSinks = {}
-  
-  // call each driver with fake sink and gather sources
-  Object.entries(drivers).forEach(([key, driver]) => {
-    const fakeSink = xs.create()
-    fakeSinks[key] = fakeSink
-    sources[key] = driver(fakeSink)
-  }) 
-  
-  // get real sinks and
-  // replace each fake sink with real one
-  const sinks = mainFn(sources)
-  Object.entries(sinks).forEach(([key, sink]) => {
-    fakeSinks[key].imitate(sink)
-  })
-}
-
-run(main, {
+Cycle.run(main, {
   DOM: domDriver,
   log: logDriver
 })

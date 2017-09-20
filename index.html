@@ -1,37 +1,45 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<meta name="description" content="CycleJS part 1">
+  <meta name="description" content="CycleJS part 1">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <title>JS Bin</title>
+  <title>Cycle JS</title>
 </head>
+
 <body>
   <div id="app"></div>
   <script src="https://unpkg.com/xstream@10.9.0/dist/xstream.js"></script>
-  <script>window.xs = xstream.default</script>
-    <script>// Taken from xstream extra's fromEvent()
-var DOMEventProducer = (function () {
-    function DOMEventProducer(node, eventType, useCapture) {
+  <script>
+    window.xs = xstream.default
+  </script>
+  <script>
+    // Taken from xstream extra's fromEvent()
+    var DOMEventProducer = (function () {
+      function DOMEventProducer(node, eventType, useCapture) {
         this.node = node;
         this.eventType = eventType;
         this.useCapture = useCapture;
         this.type = 'fromEvent';
-    }
-    DOMEventProducer.prototype._start = function (out) {
+      }
+      DOMEventProducer.prototype._start = function (out) {
         this.listener = function (e) { return out._n(e); };
         this.node.addEventListener(this.eventType, this.listener, this.useCapture);
-    };
-    DOMEventProducer.prototype._stop = function () {
+      };
+      DOMEventProducer.prototype._stop = function () {
         this.node.removeEventListener(this.eventType, this.listener, this.useCapture);
         this.listener = null;
-    };
-    return DOMEventProducer;
-}());
-window.fromEvent = function fromEvent(element, eventName, useCapture) {
-    if (useCapture === void 0) { useCapture = false; }
-    return new xstream.Stream(new DOMEventProducer(element, eventName, useCapture));
-}</script>
-<script src="bundle.js"></script>
+      };
+      return DOMEventProducer;
+    }());
+    window.fromEvent = function fromEvent(element, eventName, useCapture) {
+      if (useCapture === void 0) { useCapture = false; }
+      return new xstream.Stream(new DOMEventProducer(element, eventName, useCapture));
+    }
+  </script>
+  <script src="https://unpkg.com/@cycle/run@3.1.0/dist/cycle-run.js"></script>
+  <script src="bundle.js"></script>
 </body>
+
 </html>
