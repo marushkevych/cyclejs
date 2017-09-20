@@ -9,9 +9,10 @@ function main(sources) {
     .flatten()
     .map(i => ({
       tagName: 'H1',
-      children: [
-        `Seconds elapsed: ${i}`
-      ]
+      children: [{
+        tagName: 'span',
+        children: [`Seconds elapsed: ${i}`]
+      }]
     }))  
     
   const log = click$.map(() => `Restarted!`)  
@@ -22,9 +23,16 @@ function main(sources) {
   }
 }
 
-function createElement(obj) {
-  const element = document.createElement(obj.tagName)
-  element.textContent = obj.children[0]
+function createElement({tagName, children}) {
+  const element = document.createElement(tagName)
+  children.forEach(function(child) {
+    if (typeof child === 'object') {
+      element.appendChild(createElement(child))
+    }
+    else {
+      element.textContent = child
+    }
+  });
   return element
 }
 
@@ -32,6 +40,7 @@ function domDriver(obj$) {
   obj$.subscribe({
     next: obj => {
       const container = document.querySelector('#app')
+      container.textContent = ''
       container.appendChild(createElement(obj))
     }
   })
