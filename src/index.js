@@ -1,5 +1,25 @@
+function h(tagName, children) {
+  return {
+    tagName,
+    children
+  }
+}
+
+function h1(children) {
+  return {
+    tagName: 'H1',
+    children
+  }
+}
+
+function span(children) {
+  return {
+    tagName: 'SPAN',
+    children
+  }
+}
+
 function main(sources) {
-  
   const mouseover$ = sources.DOM.selectEvents('span', 'mouseover')
   
   const DOM = mouseover$
@@ -7,14 +27,14 @@ function main(sources) {
     .map(() => xs.periodic(1000)
     .fold(prev => prev + 1, 0))
     .flatten()
-    .map(i => ({
-      tagName: 'H1',
-      children: [{
-        tagName: 'span',
-        children: [`Seconds elapsed: ${i}`]
-      }]
-    }))  
-    
+    .map(i => 
+      h1([
+        span([
+          `Seconds elapsed: ${i}`
+        ])
+      ])
+    )
+
   const log = mouseover$.map(() => `Restarted!`)  
   
   return {
