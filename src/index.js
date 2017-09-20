@@ -56,22 +56,24 @@ function createElement({tagName, children}) {
   return element
 }
 
-function domDriver(obj$) {
-  obj$.subscribe({
-    next: obj => {
-      const container = document.querySelector('#app')
-      container.textContent = ''
-      container.appendChild(createElement(obj))
+function makeDomDriver(selector) {
+  return function domDriver(obj$) {
+    obj$.subscribe({
+      next: obj => {
+        const container = document.querySelector(selector)
+        container.textContent = ''
+        container.appendChild(createElement(obj))
+      }
+    })
+    
+    const domSource = {
+      selectEvents: (tagName, event) => {
+        return fromEvent(document, event)
+          .filter(ev => ev.target.tagName === tagName.toUpperCase())
+      }
     }
-  })
-  
-  const domSource = {
-    selectEvents: (tagName, event) => {
-      return fromEvent(document, event)
-        .filter(ev => ev.target.tagName === tagName.toUpperCase())
-    }
+    return domSource
   }
-  return domSource
 }
 
 function logDriver(msg$) {
@@ -82,6 +84,6 @@ function logDriver(msg$) {
 
 
 Cycle.run(main, {
-  DOM: domDriver,
+  DOM: makeDomDriver('#app'),
   log: logDriver
 })
