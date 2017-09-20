@@ -1,26 +1,7 @@
-function h(tagName, children) {
-  return {
-    tagName,
-    children
-  }
-}
-
-function h1(children) {
-  return {
-    tagName: 'H1',
-    children
-  }
-}
-
-function span(children) {
-  return {
-    tagName: 'SPAN',
-    children
-  }
-}
+const {h, h1, span, makeDOMDriver} = CycleDOM
 
 function main(sources) {
-  const mouseover$ = sources.DOM.selectEvents('span', 'mouseover')
+  const mouseover$ = sources.DOM.select('h1').events('mouseover')
   
   const DOM = mouseover$
     .startWith(null)
@@ -28,7 +9,7 @@ function main(sources) {
     .fold(prev => prev + 1, 0))
     .flatten()
     .map(i => 
-      h1([
+      h1({style: {backgroundColor: 'red'}},[
         span([
           `Seconds elapsed: ${i}`
         ])
@@ -43,39 +24,6 @@ function main(sources) {
   }
 }
 
-function createElement({tagName, children}) {
-  const element = document.createElement(tagName)
-  children.forEach(function(child) {
-    if (typeof child === 'object') {
-      element.appendChild(createElement(child))
-    }
-    else {
-      element.textContent = child
-    }
-  });
-  return element
-}
-
-function makeDomDriver(selector) {
-  return function domDriver(obj$) {
-    obj$.subscribe({
-      next: obj => {
-        const container = document.querySelector(selector)
-        container.textContent = ''
-        container.appendChild(createElement(obj))
-      }
-    })
-    
-    const domSource = {
-      selectEvents: (tagName, event) => {
-        return fromEvent(document, event)
-          .filter(ev => ev.target.tagName === tagName.toUpperCase())
-      }
-    }
-    return domSource
-  }
-}
-
 function logDriver(msg$) {
   msg$.subscribe({
     next: msg => console.log(msg)
@@ -84,6 +32,6 @@ function logDriver(msg$) {
 
 
 Cycle.run(main, {
-  DOM: makeDomDriver('#app'),
+  DOM: makeDOMDriver('#app'),
   log: logDriver
 })
