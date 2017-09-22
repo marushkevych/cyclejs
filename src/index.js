@@ -1,31 +1,45 @@
-const {div, label, p, button, makeDOMDriver} = CycleDOM
+const {div, h1, h4, a, p, button, makeDOMDriver} = CycleDOM
+const {makeHTTPDriver} = CycleHTTPDriver
 
-function main({DOM}) {
-  const decClick$ = DOM.select('.dec').events('click')
-  const incClick$ = DOM.select('.inc').events('click')
+function main({DOM, HTTP}) {
+  const click$ = DOM.select('.get-first').events('click')
+  
+  const responce$ = HTTP
+    .select('user-data')
+    .flatten()
+    .map(res => res.body)
+    .startWith({})
+  
+  const request$ = click$.map(ev => {
+    return {
+      url: 'https://jsonplaceholder.typicode.com/users/1',
+      method: 'GET',
+      category: 'user-data'
+    }
+  })
 
-  const dec$ = decClick$.map(() => -1) // --(-1)----------(-1)--->
-  const inc$ = incClick$.map(() => +1) // --------(+1)----------->
-
-  const delta$ = xs.merge(dec$, inc$)  // --(-1)--(+1)----(-1)--->
-
-  const number$ = delta$.fold((prev, x) => prev + x, 0)
+  const vdom$ = responce$ .map(responce =>
+    div([
+      button('.get-first', 'Get first user'),
+      div('.user-details', [
+        h1('.user-name', responce.name),
+        h4('.user-email', responce.email),
+        a('.user-website', {
+          attrs: {href: responce.website}
+        }, responce.website)
+      ])
+    ])
+  )
 
   return {
-    DOM: number$.map(number =>
-      div([
-        p([
-          label(`Count ${number}`)
-        ]),
-        button('.dec', 'Decrement'),
-        button('.inc', 'Increment'),
-      ])
-    )
+    DOM: vdom$,
+    HTTP: request$
   }
 }
 
 const drivers = {
-  DOM: makeDOMDriver('#app')
+  DOM: makeDOMDriver('#app'),
+  HTTP: makeHTTPDriver()
 }
 
 Cycle.run(main, drivers)
