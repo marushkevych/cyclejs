@@ -1,16 +1,24 @@
-const {div, label, input, hr, h1, makeDOMDriver} = CycleDOM
+const {div, label, p, button, makeDOMDriver} = CycleDOM
 
 function main({DOM}) {
-  const inputEv$ = DOM.select('.name').events('input')
-  const name$ = inputEv$.map(ev => ev.target.value).startWith('')
+  const decClick$ = DOM.select('.dec').events('click')
+  const incClick$ = DOM.select('.inc').events('click')
+
+  const dec$ = decClick$.map(() => -1) // --(-1)----------(-1)--->
+  const inc$ = incClick$.map(() => +1) // --------(+1)----------->
+
+  const delta$ = xs.merge(dec$, inc$)  // --(-1)--(+1)----(-1)--->
+
+  const number$ = delta$.fold((prev, x) => prev + x, 0)
 
   return {
-    DOM: name$.map(name =>
+    DOM: number$.map(number =>
       div([
-        label('Name:'),
-        input('.name', {attrs: {type: 'text'}}),
-        hr(),
-        h1(`Hello ${name}!`)
+        p([
+          label(`Count ${number}`)
+        ]),
+        button('.dec', 'Decrement'),
+        button('.inc', 'Increment'),
       ])
     )
   }
