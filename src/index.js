@@ -1,37 +1,23 @@
-const {h, h1, span, makeDOMDriver} = CycleDOM
+const {div, label, input, hr, h1, makeDOMDriver} = CycleDOM
 
-function main(sources) {
-  const mouseover$ = sources.DOM.select('h1').events('mouseover')
-  
-  const DOM = mouseover$
-    .startWith(null)
-    .map(() => xs.periodic(1000)
-    .fold(prev => prev + 1, 0))
-    .flatten()
-    .map(i => 
-      h1({style: {backgroundColor: 'red'}},[
-        span([
-          `Seconds elapsed: ${i}`
-        ])
+function main({DOM}) {
+  const inputEv$ = DOM.select('.name').events('input')
+  const name$ = inputEv$.map(ev => ev.target.value).startWith('')
+
+  return {
+    DOM: name$.map(name =>
+      div([
+        label('Name:'),
+        input('.name', {attrs: {type: 'text'}}),
+        hr(),
+        h1(`Hello ${name}!`)
       ])
     )
-
-  const log = mouseover$.map(() => `Restarted!`)  
-  
-  return {
-    DOM,
-    log
   }
 }
 
-function logDriver(msg$) {
-  msg$.subscribe({
-    next: msg => console.log(msg)
-  })
+const drivers = {
+  DOM: makeDOMDriver('#app')
 }
 
-
-Cycle.run(main, {
-  DOM: makeDOMDriver('#app'),
-  log: logDriver
-})
+Cycle.run(main, drivers)
