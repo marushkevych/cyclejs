@@ -1,6 +1,6 @@
 const {div, h2, label, p, button, input, makeDOMDriver} = CycleDOM
 
-function main({DOM, HTTP}) {
+function main({DOM}) {
   const changeWeight$ = DOM.select('.weight').events('input')
   const changeHight$ = DOM.select('.height').events('input')
 
