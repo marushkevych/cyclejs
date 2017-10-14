@@ -1,56 +1,40 @@
-const {div, h2, label, p, button, input, makeDOMDriver} = CycleDOM
+const SliderComponent = require('./SliderComponent')
+const {div, makeDOMDriver} = CycleDOM
 
-function main({DOM}) {
-  return {
-    DOM: view(model(intent(DOM)))
-  }
-}
+const wightSlider = SliderComponent(40, 150, 'Weight', 'kg')
+const hightSlider = SliderComponent(140, 220, 'Height', 'cm')
 
-function intent(DOM) {
-  const changeWeight$ = DOM.select('.weight').events('input')
-  const changeHight$ = DOM.select('.height').events('input')
+function main(sources) {
+  // preprocess sources to select isolate scope
+  const weightDOMSource = sources.DOM.select('.weight')
+  const heightDOMSource = sources.DOM.select('.height')
 
-  const weight$ = changeWeight$.map(ev => ev.target.value)
-  const height$ = changeHight$.map(ev => ev.target.value)
 
-  return {weight$, height$}
-}
-
-function model(actions) {
-  const {weight$, height$} = actions
-  return xs.combine(weight$.startWith(40), height$.startWith(150)).map(([weight, height]) => {
-    const hightMeters = height*0.01
-    const bmi = Math.round(weight/(hightMeters*hightMeters))
-    return {weight, height, bmi}
+  const weightSinks = wightSlider({DOM: weightDOMSource})
+  const weightVDOM$ = weightSinks.DOM.map(vdom => {
+    // mark with class for isolate scope
+    vdom.sel += '.weight'
+    return vdom
   })
-}
+  
+  const heightSinks = hightSlider({DOM: heightDOMSource})
+  const heightVDOM$ = heightSinks.DOM.map(vdom => {
+    // mark with class for isolate scope
+    vdom.sel += '.height'
+    return vdom
+  })
 
-function view(state$) {
-  const vdom$ = state$.map(({weight, height, bmi}) =>
-    div([
+  const vdom$ = xs.combine(weightVDOM$, heightVDOM$)
+    .map(([weightVDOM, heightVDOM]) => 
       div([
-        label(`Weight: ${weight} kg`),
-        input('.weight', {attrs: {
-          type: 'range',
-          min: 40,
-          max: 150,
-          value: 40
-        }})
-      ]),
-      div([
-        label(`Hight: ${height} cm`),
-        input('.height', {attrs: {
-          type: 'range',
-          min: 150,
-          max: 220,
-          value: 150
-        }})
-      ]),
-      h2(`BMI is ${bmi}`)
-    ])
-  )
+        weightVDOM,
+        heightVDOM
+      ])
+    )
 
-  return vdom$
+  return {
+    DOM: vdom$
+  }
 }
 
 const drivers = {
