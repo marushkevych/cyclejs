@@ -10,15 +10,15 @@ function intent(DOM) {
   const changeWeight$ = DOM.select('.weight').events('input')
   const changeHight$ = DOM.select('.height').events('input')
 
-  const weight$ = changeWeight$.map(ev => ev.target.value).startWith(40)
-  const height$ = changeHight$.map(ev => ev.target.value).startWith(150)
+  const weight$ = changeWeight$.map(ev => ev.target.value)
+  const height$ = changeHight$.map(ev => ev.target.value)
 
   return {weight$, height$}
 }
 
 function model(actions) {
   const {weight$, height$} = actions
-  return xs.combine(weight$, height$).map(([weight, height]) => {
+  return xs.combine(weight$.startWith(40), height$.startWith(150)).map(([weight, height]) => {
     const hightMeters = height*0.01
     const bmi = Math.round(weight/(hightMeters*hightMeters))
     return {weight, height, bmi}
