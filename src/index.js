@@ -1,19 +1,31 @@
 const {div, h2, label, p, button, input, makeDOMDriver} = CycleDOM
 
 function main({DOM}) {
+  return {
+    DOM: view(model(intent(DOM)))
+  }
+}
+
+function intent(DOM) {
   const changeWeight$ = DOM.select('.weight').events('input')
   const changeHight$ = DOM.select('.height').events('input')
 
   const weight$ = changeWeight$.map(ev => ev.target.value).startWith(40)
   const height$ = changeHight$.map(ev => ev.target.value).startWith(150)
-  
-  const state$ = xs.combine(weight$, height$)
-    .map(([weight, height]) => {
-      const hightMeters = height*0.01
-      const bmi = Math.round(weight/(hightMeters*hightMeters))
-      return {weight, height, bmi}
-    })
 
+  return {weight$, height$}
+}
+
+function model(actions) {
+  const {weight$, height$} = actions
+  return xs.combine(weight$, height$).map(([weight, height]) => {
+    const hightMeters = height*0.01
+    const bmi = Math.round(weight/(hightMeters*hightMeters))
+    return {weight, height, bmi}
+  })
+}
+
+function view(state$) {
   const vdom$ = state$.map(({weight, height, bmi}) =>
     div([
       div([
@@ -38,9 +50,7 @@ function main({DOM}) {
     ])
   )
 
-  return {
-    DOM: vdom$
-  }
+  return vdom$
 }
 
 const drivers = {
