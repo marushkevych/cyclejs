@@ -1,30 +1,16 @@
+const isolate = require('@cycle/isolate').default
 const SliderComponent = require('./SliderComponent')
 const {div, makeDOMDriver} = CycleDOM
 
-const wightSlider = SliderComponent(40, 150, 'Weight', 'kg')
-const hightSlider = SliderComponent(140, 220, 'Height', 'cm')
+const wightSlider = isolate(SliderComponent(40, 150, 'Weight', 'kg'), '.weight')
+const hightSlider = isolate(SliderComponent(140, 220, 'Height', 'cm'), '.hight')
 
 function main(sources) {
-  // preprocess sources to select isolate scope
-  const weightDOMSource = sources.DOM.select('.weight')
-  const heightDOMSource = sources.DOM.select('.height')
 
+  const weightSinks = wightSlider(sources)
+  const heightSinks = hightSlider(sources)
 
-  const weightSinks = wightSlider({DOM: weightDOMSource})
-  const weightVDOM$ = weightSinks.DOM.map(vdom => {
-    // mark with class for isolate scope
-    vdom.sel += '.weight'
-    return vdom
-  })
-  
-  const heightSinks = hightSlider({DOM: heightDOMSource})
-  const heightVDOM$ = heightSinks.DOM.map(vdom => {
-    // mark with class for isolate scope
-    vdom.sel += '.height'
-    return vdom
-  })
-
-  const vdom$ = xs.combine(weightVDOM$, heightVDOM$)
+  const vdom$ = xs.combine(weightSinks.DOM, heightSinks.DOM)
     .map(([weightVDOM, heightVDOM]) => 
       div([
         weightVDOM,
