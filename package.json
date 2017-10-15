@@ -22,7 +22,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@cycle/isolate": "^3.1.0"
+    "@cycle/dom": "^18.3.0",
+    "@cycle/isolate": "^3.1.0",
+    "@cycle/run": "^3.3.0",
+    "xstream": "^11.0.0"
   },
   "devDependencies": {
     "babel-preset-env": "^1.6.0",

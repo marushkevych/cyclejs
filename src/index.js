@@ -1,6 +1,8 @@
+import { run } from "@cycle/run"
+import xs from "xstream"
 import isolate from '@cycle/isolate'
 import sliderComponent from './SliderComponent'
-const {div, makeDOMDriver} = CycleDOM
+import {div, makeDOMDriver} from '@cycle/dom'
 
 const wightSlider = isolate(sliderComponent, '.weight')
 const hightSlider = isolate(sliderComponent, '.hight')
@@ -41,4 +43,4 @@ const drivers = {
   DOM: makeDOMDriver('#app')
 }
 
-Cycle.run(main, drivers)
+run(main, drivers)

@@ -1,4 +1,4 @@
-const {div, h2, label, p, button, input} = CycleDOM
+import  {div, h2, label, p, button, input} from '@cycle/dom'
   
 function sliderComponent({DOM, props}) {
   const actions = intent(DOM)
