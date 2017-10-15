@@ -1,5 +1,5 @@
-const isolate = require('@cycle/isolate').default
-const sliderComponent = require('./SliderComponent')
+import isolate from '@cycle/isolate'
+import sliderComponent from './SliderComponent'
 const {div, makeDOMDriver} = CycleDOM
 
 const wightSlider = isolate(sliderComponent, '.weight')
@@ -13,7 +13,7 @@ function main(sources) {
     max: 150,
     init: 70,
   })
-  const weightSinks = wightSlider({DOM: sources.DOM, props: weightProps$})
+  const weightSinks = wightSlider({...sources, props: weightProps$})
 
   const heightProps$ = xs.of({
     name: 'Height',
@@ -22,7 +22,7 @@ function main(sources) {
     max: 220,
     init: 170,
   })
-  const heightSinks = hightSlider({DOM: sources.DOM, props: heightProps$})
+  const heightSinks = hightSlider({...sources, props: heightProps$})
 
   const vdom$ = xs.combine(weightSinks.DOM, heightSinks.DOM)
     .map(([weightVDOM, heightVDOM]) => 
