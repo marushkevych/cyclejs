@@ -4,7 +4,8 @@ function sliderComponent({DOM, props}) {
   const actions = intent(DOM)
   const state$ = model(actions, props)
   return {
-    DOM: view(state$)
+    DOM: view(state$),
+    value: state$.map(state => state.value)
   }
 }
 
@@ -22,7 +23,7 @@ function model(actions, props$) {
     return actions.sliderValue$.startWith(init).map(value => {
       return {value, name, unit, min, max}
     })
-  }).flatten()
+  }).flatten().remember()
 }
 
 function view(state$) {
